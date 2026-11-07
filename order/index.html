@@ -308,17 +308,18 @@ function getLocation(){
     else if (geo.d > C.RADIUS_KM) { msg.textContent = '⚠️ ห่างร้าน ~' + geo.d.toFixed(1) + ' กม. (เกิน ' + C.RADIUS_KM + ' กม.) ร้านจะติดต่อกลับ'; msg.className='locmsg warn'; }
     else { msg.textContent = '✅ ห่างร้าน ~' + geo.d.toFixed(1) + ' กม. อยู่ในพื้นที่ส่ง'; msg.className='locmsg'; }
   };
-  const denied = () => {
+  const code = e => e ? '<br><small style="color:#9CA3AF">(รหัส ' + e.code + (e.message ? ': ' + esc(e.message) : '') + ' · v10)</small>' : '';
+  const denied = e => {
     const app = inLine ? 'LINE' : 'เบราว์เซอร์';
     const how = ios ? 'ตั้งค่า › ' + app + ' › ตำแหน่ง › "ขณะใช้งานแอป"'
                     : 'ตั้งค่า › แอป › ' + app + ' › สิทธิ์ › ตำแหน่ง › "อนุญาตขณะใช้แอป"';
-    fail('ยังไม่ได้อนุญาตให้ใช้ตำแหน่ง<br>เปิดได้ที่ ' + how + ' แล้วกดปุ่มนี้อีกครั้ง<br>หรือวางลิงก์แผนที่ในช่องด้านล่างแทน (ไม่บังคับ)');
+    fail('ยังไม่ได้อนุญาตให้ใช้ตำแหน่ง<br>เปิดได้ที่ ' + how + ' แล้วกดปุ่มนี้อีกครั้ง<br>หรือวางลิงก์แผนที่ในช่องด้านล่างแทน (ไม่บังคับ)' + code(e));
   };
-  const off = () => fail('หาตำแหน่งไม่เจอ — เช็กว่าเปิด GPS / ตำแหน่งที่ตั้งในมือถือแล้ว แล้วกดอีกครั้ง<br>หรือวางลิงก์แผนที่ในช่องด้านล่างแทน (ไม่บังคับ)');
+  const off = e => fail('หาตำแหน่งไม่เจอ — เช็กว่าเปิด GPS / ตำแหน่งที่ตั้งในมือถือแล้ว แล้วกดอีกครั้ง<br>หรือวางลิงก์แผนที่ในช่องด้านล่างแทน (ไม่บังคับ)' + code(e));
   // รอบแรกขอแบบแม่นยำ ถ้าช้า/หาไม่เจอ ลองใหม่แบบธรรมดา (ใช้ตำแหน่งล่าสุดได้)
   navigator.geolocation.getCurrentPosition(ok, e => {
-    if (e && e.code === 1) return denied();
-    navigator.geolocation.getCurrentPosition(ok, e2 => (e2 && e2.code === 1) ? denied() : off(),
+    if (e && e.code === 1) return denied(e);
+    navigator.geolocation.getCurrentPosition(ok, e2 => (e2 && e2.code === 1) ? denied(e2) : off(e2),
       {enableHighAccuracy:false, timeout:15000, maximumAge:300000});
   }, {enableHighAccuracy:true, timeout:8000, maximumAge:60000});
 }

@@ -90,7 +90,7 @@ textarea{resize:vertical;min-height:70px}
 .opt label:has(input:checked){border-color:var(--mint-d);background:var(--mint-l);font-weight:600}
 .loc{display:flex;gap:8px;align-items:center;margin-top:8px}
 .loc button{border:1.5px solid var(--mint-d);background:#fff;color:var(--mint-d);border-radius:12px;padding:9px 12px;font-size:14px;font-weight:500;white-space:nowrap}
-.locmsg{font-size:12.5px;color:var(--mute)}
+.locmsg{font-size:12.5px;color:var(--mute);flex:1;line-height:1.45}
 .warn{color:var(--red)}
 .ok{text-align:center;padding:24px 4px}
 .ok .ic{font-size:54px}
@@ -295,16 +295,32 @@ function dist(a,b,c,d){ const R=6371, r=x=>x*Math.PI/180; const dl=r(c-a), dn=r(
   const h=Math.sin(dl/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dn/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
 function getLocation(){
   const msg = $('#locmsg');
-  if (!navigator.geolocation) { msg.textContent = 'เครื่องนี้ไม่รองรับ กรุณาวางลิงก์แผนที่แทน'; return; }
-  msg.textContent = 'กำลังหาตำแหน่ง…';
-  navigator.geolocation.getCurrentPosition(p => {
+  const fail = html => { msg.innerHTML = html; msg.className = 'locmsg warn'; };
+  const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const inLine = /\bLine\//i.test(navigator.userAgent);
+  if (!navigator.geolocation) { fail('เครื่องนี้หาตำแหน่งไม่ได้ กรุณาวางลิงก์แผนที่แทน'); return; }
+  msg.className = 'locmsg'; msg.textContent = 'กำลังหาตำแหน่ง… (ถ้ามีหน้าต่างถาม ให้กด "อนุญาต")';
+  const ok = p => {
     const {latitude:la, longitude:lo} = p.coords;
     geo = {la, lo, d: (C.SHOP_LAT!=null && C.SHOP_LNG!=null) ? dist(C.SHOP_LAT,C.SHOP_LNG,la,lo) : null};
     $('#cmap').value = 'https://maps.google.com/?q=' + la.toFixed(6) + ',' + lo.toFixed(6);
     if (geo.d==null) { msg.textContent = '✅ ได้ตำแหน่งแล้ว'; msg.className='locmsg'; }
     else if (geo.d > C.RADIUS_KM) { msg.textContent = '⚠️ ห่างร้าน ~' + geo.d.toFixed(1) + ' กม. (เกิน ' + C.RADIUS_KM + ' กม.) ร้านจะติดต่อกลับ'; msg.className='locmsg warn'; }
     else { msg.textContent = '✅ ห่างร้าน ~' + geo.d.toFixed(1) + ' กม. อยู่ในพื้นที่ส่ง'; msg.className='locmsg'; }
-  }, () => { msg.textContent = 'เปิดตำแหน่งไม่ได้ กรุณาวางลิงก์แผนที่แทน'; }, {enableHighAccuracy:true, timeout:10000});
+  };
+  const denied = () => {
+    const app = inLine ? 'LINE' : 'เบราว์เซอร์';
+    const how = ios ? 'ตั้งค่า › ' + app + ' › ตำแหน่ง › "ขณะใช้งานแอป"'
+                    : 'ตั้งค่า › แอป › ' + app + ' › สิทธิ์ › ตำแหน่ง › "อนุญาตขณะใช้แอป"';
+    fail('ยังไม่ได้อนุญาตให้ใช้ตำแหน่ง<br>เปิดได้ที่ ' + how + ' แล้วกดปุ่มนี้อีกครั้ง<br>หรือวางลิงก์แผนที่ในช่องด้านล่างแทน (ไม่บังคับ)');
+  };
+  const off = () => fail('หาตำแหน่งไม่เจอ — เช็กว่าเปิด GPS / ตำแหน่งที่ตั้งในมือถือแล้ว แล้วกดอีกครั้ง<br>หรือวางลิงก์แผนที่ในช่องด้านล่างแทน (ไม่บังคับ)');
+  // รอบแรกขอแบบแม่นยำ ถ้าช้า/หาไม่เจอ ลองใหม่แบบธรรมดา (ใช้ตำแหน่งล่าสุดได้)
+  navigator.geolocation.getCurrentPosition(ok, e => {
+    if (e && e.code === 1) return denied();
+    navigator.geolocation.getCurrentPosition(ok, e2 => (e2 && e2.code === 1) ? denied() : off(),
+      {enableHighAccuracy:false, timeout:15000, maximumAge:300000});
+  }, {enableHighAccuracy:true, timeout:8000, maximumAge:60000});
 }
 
 function submit(){

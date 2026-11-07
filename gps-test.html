@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ทดสอบตำแหน่ง</title>
+<style>body{font-family:system-ui,sans-serif;background:#fff;color:#111;margin:0;padding:16px;font-size:15px}
+button{font-size:17px;padding:12px 18px;border-radius:12px;border:2px solid #2E8B63;background:#fff;color:#2E8B63;width:100%}
+pre{white-space:pre-wrap;word-break:break-all;background:#f4f4f4;padding:12px;border-radius:10px;font-size:13px}</style></head>
+<body>
+<h3>ทดสอบตำแหน่ง Yograce</h3>
+<p>กดปุ่ม แล้วแคปหน้าจอส่งให้ทีมงาน</p>
+<button id="b">📍 ทดสอบ</button>
+<pre id="o">กำลังเตรียม…</pre>
+<script>
+const o = document.getElementById('o');
+const log = s => { o.textContent += '\n' + s; };
+o.textContent = 'UA: ' + navigator.userAgent + '\nURL: ' + location.href + '\nsecure: ' + window.isSecureContext + '\nhas geolocation: ' + !!navigator.geolocation;
+if (navigator.permissions) navigator.permissions.query({name:'geolocation'}).then(p => log('permission: ' + p.state)).catch(e => log('permission query error: ' + e));
+const run = (hi, t) => new Promise(res => {
+  const t0 = Date.now();
+  navigator.geolocation.getCurrentPosition(
+    p => { log((hi?'[แม่นยำ] ':'[ธรรมดา] ') + 'OK ' + p.coords.latitude.toFixed(5) + ',' + p.coords.longitude.toFixed(5) + ' ±' + Math.round(p.coords.accuracy) + 'm (' + (Date.now()-t0) + 'ms)'); res(true); },
+    e => { log((hi?'[แม่นยำ] ':'[ธรรมดา] ') + 'ERROR code ' + e.code + ' "' + e.message + '" (' + (Date.now()-t0) + 'ms)'); res(false); },
+    {enableHighAccuracy: hi, timeout: t, maximumAge: 0});
+});
+document.getElementById('b').onclick = async () => {
+  log('--- ' + new Date().toLocaleTimeString('th-TH'));
+  if (!navigator.geolocation) return log('ไม่มี geolocation');
+  await run(true, 10000);
+  await run(false, 15000);
+};
+</script>
+</body></html>

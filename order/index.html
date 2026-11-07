@@ -126,7 +126,7 @@ textarea{resize:vertical;min-height:70px}
 const API = 'https://script.google.com/macros/s/AKfycbxtXfWHtOhZo-IklcFPlCDn8VeSzVX5uwA-uhcB6LArK6KhcjUqdvBRTD2gXcn_0CHq9g/exec';
 let DATA = null;
 try { DATA = JSON.parse(localStorage.getItem('yg_menu')); } catch (e) {}
-const fresh = fetch(API + '?api=menu').then(r => r.json()).then(d => { try { localStorage.setItem('yg_menu', JSON.stringify(d)); } catch (e) {} return d; });
+const fresh = fetch(API + '?api=menu').then(r => r.json()).then(d => { const s = JSON.stringify(d); let prev = null; try { prev = localStorage.getItem('yg_menu'); localStorage.setItem('yg_menu', s); } catch (e) {} if (DATA && DATA.MENU && prev && prev !== s) location.reload(); return d; });
 if (!DATA || !DATA.MENU) {
   document.getElementById('menu').innerHTML = '<p style="text-align:center;color:#6B7280;padding:48px 0">กำลังโหลดเมนู…</p>';
   try { DATA = await fresh; }

@@ -378,7 +378,7 @@ function submit(){
   cust = store.get('yg_cust') || {};
   const btn = $('#send'); btn.disabled = true; btn.textContent = 'กำลังส่งออเดอร์…';
   const shown = totals().total;
-  api('order', {customer:c, items: itemsPayload(), quoted: shown, qrFirst: true})
+  api('order', {customer:c, items: itemsPayload(), quoted: shown, qrFirst: true, lineUid: LIFF.uid || ''})
     .then(r => done(Object.assign(r, {shown})))
     .catch(e => { btn.disabled = false; btn.textContent = 'ลองส่งอีกครั้ง'; err.innerHTML = '<div class="err">' + esc((e && e.message) || 'ส่งไม่สำเร็จ กรุณาลองใหม่') + '</div>'; });
 }
@@ -431,6 +431,28 @@ function ppImage(amount, orderNo){
   try { return cv.toDataURL('image/png'); } catch (e) { return ''; }
 }
 
+/* ---------- LINE LIFF: เปิดหน้าสั่งผ่าน liff.line.me → หลังสั่ง ส่ง "สั่งออเดอร์ YG..." เข้าแชทร้าน แล้วบอทตอบสรุปกลับ ---------- */
+const LIFF = { ready: false, inClient: false, uid: '', chat: '' };
+if (C.LIFF_ID && !(window.google && google.script && google.script.run) && !DATA.QRVIEW) {
+  const sdk = document.createElement('script');
+  sdk.src = 'https://static.line-scdn.net/liff/edge/2/sdk.js';
+  sdk.onload = () => window.liff.init({ liffId: C.LIFF_ID }).then(() => {
+    LIFF.ready = true; LIFF.inClient = liff.isInClient();
+    const ctx = liff.getContext() || {};
+    LIFF.uid = ctx.userId || ''; LIFF.chat = ctx.type || '';
+  }).catch(e => console.warn('LIFF', e));
+  document.head.appendChild(sdk);
+}
+function sendOrderToChat(orderNo){
+  if (!LIFF.ready || !LIFF.inClient || LIFF.chat !== 'utou') return;
+  liff.sendMessages([{ type: 'text', text: '🧾 สั่งออเดอร์ ' + orderNo }]).catch(e => console.warn('sendMessages', e));
+}
+/* ใน LIFF ลิงก์ "เปิดในเบราว์เซอร์" ต้องใช้ liff.openWindow */
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('a[data-ext]');
+  if (a && LIFF.ready && LIFF.inClient) { e.preventDefault(); liff.openWindow({ url: a.href.replace('&openExternalBrowser=1', ''), external: true }); }
+});
+
 /* การ์ด QR: ในแอป LINE ดาวน์โหลดไฟล์ไม่ได้ → ให้แคปหน้าจอ หรือเปิดหน้า QR ในเบราว์เซอร์ปกติ */
 const inLineApp = /\bLine\//i.test(navigator.userAgent);
 function qrCard(total, orderNo){
@@ -440,7 +462,7 @@ function qrCard(total, orderNo){
   const ext = DATA.EXEC_URL ? DATA.EXEC_URL + '?qr=1&a=' + encodeURIComponent(total) + '&o=' + encodeURIComponent(orderNo) + '&openExternalBrowser=1' : '';
   const action = inLineApp
     ? `<div class="how" style="font-size:14px;color:var(--ink)">📸 <b>แคปหน้าจอ</b>ไว้ แล้วเปิดแอปธนาคาร → สแกน → เลือกรูปจากอัลบั้ม</div>
-       ${ext ? `<a class="btn ghost" style="display:block;text-decoration:none;margin-top:10px" href="${ext}" target="_blank" rel="noopener">🌐 เปิดในเบราว์เซอร์เพื่อบันทึกรูป</a>` : ''}`
+       ${ext ? `<a class="btn ghost" style="display:block;text-decoration:none;margin-top:10px" href="${ext}" data-ext target="_blank" rel="noopener">🌐 เปิดในเบราว์เซอร์เพื่อบันทึกรูป</a>` : ''}`
     : `<a class="btn" style="display:block;text-decoration:none;margin-top:12px" href="${img}" download="Yograce-${esc(orderNo || total)}.png">💾 บันทึกรูป QR</a>
        <div class="how">ถ้าปุ่มบันทึกใช้ไม่ได้ ให้ <b>กดค้างที่รูป</b> หรือ <b>แคปหน้าจอ</b><br>เปิดแอปธนาคาร → สแกน → เลือกรูปจากอัลบั้ม</div>`;
   return `<div class="pp"><img src="${img}" alt="QR พร้อมเพย์ ${total} บาท">${action}
@@ -449,7 +471,8 @@ function qrCard(total, orderNo){
 
 function done(r, restored){
   if (!restored) { cart = []; saveCart();
-    store.set('yg_last', {orderNo:r.orderNo, total:r.total, fee:r.fee, cups:r.cups, demo:r.demo, shown:r.shown, at:Date.now()}); }
+    store.set('yg_last', {orderNo:r.orderNo, total:r.total, fee:r.fee, cups:r.cups, demo:r.demo, shown:r.shown, at:Date.now()});
+    if (!r.demo) sendOrderToChat(r.orderNo); }
   const hasQR = !!(C.PAY_QR || C.PROMPTPAY);
   const changed = r.shown != null && r.shown !== r.total;  // ราคาเปลี่ยนระหว่างสั่ง → ต้องโอนตามยอดใหม่
   const qr = !hasQR ? '' : changed

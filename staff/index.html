@@ -63,8 +63,9 @@ input:focus,select:focus{border-color:var(--mint-d)}
 .pic .pv{width:84px;height:104px;border-radius:12px;background:var(--mint-l);overflow:hidden;flex:none;display:grid;place-items:center;font-size:12px;color:var(--mute);text-align:center}
 .pic .pv img{width:100%;height:100%;object-fit:cover}
 .pic label{flex:1}
-.chk{display:flex;gap:8px;align-items:center;margin-top:14px;font-size:14px}
-.chk input{width:20px;height:20px}
+.chk{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:15px;background:#EEF1FF;border:1.5px solid #D6DCFF;border-radius:12px;padding:12px;color:var(--navy);font-weight:500}
+.chk input{width:22px;height:22px;flex:none;accent-color:var(--navy)}
+.chk small{display:block;font-weight:400;color:var(--mute);font-size:12px}
 .err{background:#FDECEC;color:#9B1C1C;border-radius:12px;padding:10px 12px;font-size:14px;margin-top:10px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:9px 16px;font-size:14px;z-index:50;max-width:90%;text-align:center}
 .login{max-width:340px;margin:12vh auto 0;text-align:center}
@@ -178,8 +179,10 @@ function form(it){
     <div class="lbl">ชื่อเมนู (ไทย)</div><input type="text" id="fname" maxlength="60" value="${esc(isEdit ? it.name : 'โยเกิร์ต')}">
     <div class="lbl">ชื่ออังกฤษ <span>(ไม่บังคับ)</span></div><input type="text" id="fen" maxlength="60" value="${esc(isEdit ? it.en : '')}">
     <div class="lbl">ราคา (บาท)</div><input type="number" id="fprice" inputmode="numeric" min="1" max="9999" value="${isEdit ? it.price : ''}">
-    <div class="lbl">หมวด</div><select id="fcat" ${isEdit && !it.added ? 'disabled' : ''}>${V.cats.map(c => `<option value="${c.cat}" ${(isEdit ? it.cat : 'fruity') === c.cat ? 'selected' : ''}>${c.icon} ${esc(c.name)}</option>`).join('')}</select>
-    <label class="chk"><input type="checkbox" id="fnew" ${!isEdit || it.isNew ? 'checked' : ''}> ติดป้าย "ใหม่" และโชว์ในหมวด ✨ เมนูใหม่</label>
+    <div class="lbl">หมวดเมนู</div>
+    <label class="chk"><input type="checkbox" id="fnew" ${!isEdit || it.isNew ? 'checked' : ''}><span>✨ เมนูใหม่<small>โชว์ในหมวด "เมนูใหม่" ด้านบนสุด + ติดป้าย "ใหม่"</small></span></label>
+    <div class="lbl" style="font-size:13px">และอยู่ในหมวดหลัก <span>${isEdit && !it.added ? '(เมนูเดิมของร้าน เปลี่ยนหมวดไม่ได้)' : '(เมื่อเลิกเป็นเมนูใหม่ จะอยู่หมวดนี้)'}</span></div>
+    <select id="fcat" ${isEdit && !it.added ? 'disabled' : ''}>${V.cats.map(c => `<option value="${c.cat}" ${(isEdit ? it.cat : 'fruity') === c.cat ? 'selected' : ''}>${c.icon} ${esc(c.name)}</option>`).join('')}</select>
     <div id="ferr"></div>
     <button class="btn" id="fsave" style="margin-top:16px">${isEdit ? 'บันทึก' : 'เพิ่มเมนู'}</button>
     ${isEdit ? '<button class="btn red" id="fdel" style="margin-top:10px">ลบเมนูนี้</button>' : ''}`;

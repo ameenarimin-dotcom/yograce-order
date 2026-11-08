@@ -292,11 +292,11 @@ function openCart(){
     <div class="opt"><label><input type="radio" name="when" value="now" checked>ส่งทันที</label><label><input type="radio" name="when" value="later">ระบุเวลา</label></div>
     <input type="text" id="ctime" class="hide" placeholder="เช่น 15:30" style="margin-top:8px" maxlength="20">
     <div class="lbl">ชำระเงิน</div>
-    <div class="sum" style="margin-top:0">📱 โอนผ่าน QR พร้อมเพย์ก่อนยืนยันออเดอร์ (ไม่มีเก็บเงินปลายทาง)</div>
+    <div class="sum" style="margin-top:0">📱 โอนผ่าน QR พร้อมเพย์ (ขึ้น QR ให้หลังกดยืนยันสั่ง · ไม่มีเก็บเงินปลายทาง)</div>
     <div class="lbl">หมายเหตุถึงร้าน <span>(ถ้ามี)</span></div><input type="text" id="cnote" maxlength="200" placeholder="เช่น โทรก่อนถึง, ฝากไว้หน้าบ้าน">
     <label class="save"><input type="checkbox" id="csave" ${cust.name?'checked':''}> จำข้อมูลไว้ใช้ครั้งหน้า</label>
     <div id="err"></div>
-    <div class="row" style="margin-top:14px"><button class="btn navy" id="send" ${closedWhy()?'disabled':''}>${closedWhy()? esc(closedWhy()) : 'ไปชำระเงิน · ' + t.total + '.-'}</button></div>`;
+    <div class="row" style="margin-top:14px"><button class="btn navy" id="send" ${closedWhy()?'disabled':''}>${closedWhy()? esc(closedWhy()) : 'ยืนยันสั่ง · ' + t.total + '.-'}</button></div>`;
   $('#cx').onclick = () => close('#ovCart');
   $('#lines').onclick = e => { const b = e.target.closest('[data-i]'); if(!b) return; cart.splice(+b.dataset.i,1); saveCart(); openCart(); };
   sh.querySelectorAll('input[name=when]').forEach(r => r.onchange = () => $('#ctime').classList.toggle('hide', r.value!=='later' || !r.checked));
@@ -374,34 +374,10 @@ function submit(){
   if (closedWhy()) { err.innerHTML = '<div class="err">' + esc(closedWhy()) + '</div>'; return; }
   if ($('#csave').checked) store.set('yg_cust', {name:c.name, phone:c.phone, points:c.points, address:c.address, map:c.map}); else store.set('yg_cust', {});
   cust = store.get('yg_cust') || {};
-  const btn = $('#send'); btn.disabled = true; btn.textContent = 'กำลังเช็กยอด…';
-  api('quote', {customer:c, items: itemsPayload()})
-    .then(q => { const pay = {c, total:q.total, fee:q.fee, cups:q.cups, at:Date.now()}; store.set('yg_pay', pay); showPay(pay); })
-    .catch(e => { btn.disabled = false; btn.textContent = 'ลองอีกครั้ง'; err.innerHTML = '<div class="err">' + esc((e && e.message) || 'ไม่สำเร็จ กรุณาลองใหม่') + '</div>'; });
-}
-
-/* หน้าชำระเงิน: สแกน QR โอน → กด "โอนแล้ว ยืนยันออเดอร์" */
-function showPay(pay){
-  const sh = $('#cartSheet');
-  sh.innerHTML = `<div class="row" style="justify-content:space-between"><h3>ชำระเงิน</h3><button id="pback" style="border:0;background:none;font-size:14px;color:var(--mute);padding:4px 8px">← แก้ไขออเดอร์</button></div>
-    <div class="paybox"><div style="color:var(--mute);font-size:13px">ยอดที่ต้องโอน (${pay.cups} แก้ว · ค่าส่ง ${pay.fee ? pay.fee + '.-' : 'ฟรี'})</div>
-      <div class="amt">${pay.total}.-</div>
-      ${(C.PAY_QR || C.PROMPTPAY) ? qrCard(pay.total, '') : ''}
-    </div>
-    <div class="steps">1) สแกน QR ด้วยแอปธนาคาร แล้วโอนให้เรียบร้อย<br>2) กลับมาที่หน้านี้ แล้วกดปุ่มด้านล่าง</div>
-    <div id="err"></div>
-    <div class="row" style="margin-top:8px"><button class="btn navy" id="paid">✅ โอนแล้ว ยืนยันออเดอร์</button></div>
-    <p style="color:var(--mute);font-size:12.5px;text-align:center;margin:10px 0 0">ร้านจะตรวจยอดเข้าแล้วเริ่มทำทันที · ถ้ายอดไม่เข้า ร้านจะโทรหาที่เบอร์ ${esc(pay.c.phone)}</p>`;
-  $('#pback').onclick = () => { store.set('yg_pay', null); openCart(); };
-  $('#paid').onclick = () => {
-    const btn = $('#paid'), err = $('#err'); err.innerHTML = '';
-    btn.disabled = true; btn.textContent = 'กำลังส่งออเดอร์…';
-    api('order', {customer: pay.c, items: itemsPayload(), quoted: pay.total})
-      .then(r => { store.set('yg_pay', null); done(r); })
-      .catch(e => { btn.disabled = false; btn.textContent = '✅ ลองส่งอีกครั้ง'; err.innerHTML = '<div class="err">' + esc((e && e.message) || 'ส่งไม่สำเร็จ กรุณาลองใหม่') + '</div>'; });
-  };
-  open('#ovCart');
-  sh.scrollTop = 0;
+  const btn = $('#send'); btn.disabled = true; btn.textContent = 'กำลังส่งออเดอร์…';
+  api('order', {customer:c, items: itemsPayload(), strict: true})
+    .then(done)
+    .catch(e => { btn.disabled = false; btn.textContent = 'ลองส่งอีกครั้ง'; err.innerHTML = '<div class="err">' + esc((e && e.message) || 'ส่งไม่สำเร็จ กรุณาลองใหม่') + '</div>'; });
 }
 
 /* ---------- PromptPay QR (มาตรฐาน EMVCo / Thai QR Payment) ---------- */
@@ -468,24 +444,27 @@ function qrCard(total, orderNo){
     <div class="how">${amt}${C.PROMPTPAY_NAME ? ' · ชื่อบัญชี ' + esc(C.PROMPTPAY_NAME) : ''}</div></div>`;
 }
 
-function done(r){
-  cart = []; saveCart();
-  const chat = C.LINE_OA_ID && r.summary ? 'https://line.me/R/oaMessage/' + encodeURIComponent(C.LINE_OA_ID) + '/?' + encodeURIComponent(r.summary) : '';
-  $('#cartSheet').innerHTML = `<div class="ok"><div class="ic">🎉</div><div>ร้านได้รับออเดอร์แล้ว</div>
+function done(r, restored){
+  if (!restored) { cart = []; saveCart();
+    store.set('yg_last', {orderNo:r.orderNo, total:r.total, fee:r.fee, cups:r.cups, demo:r.demo, at:Date.now()}); }
+  const qr = (C.PAY_QR || C.PROMPTPAY) ? qrCard(r.total, r.orderNo) : '';
+  $('#cartSheet').innerHTML = `<div class="ok" style="padding-top:12px"><div class="ic">🎉</div><div>ร้านได้รับออเดอร์แล้ว</div>
     <div class="no">${esc(r.orderNo)}</div><div>ยอดโอน <b>${r.total}.-</b> (${r.cups} แก้ว · ค่าส่ง ${r.fee? r.fee+'.-' : 'ฟรี'})</div>
-    <p style="color:var(--mute);font-size:13.5px">ร้านจะตรวจยอดโอนแล้วเริ่มทำทันที<br>ไรเดอร์จะโทรหาเมื่อใกล้ถึง</p>
+    ${qr}
+    <p style="color:var(--mute);font-size:13.5px">สแกน QR โอนยอดนี้ ร้านจะเริ่มทำเมื่อยอดเข้า<br>ไรเดอร์จะโทรหาเมื่อใกล้ถึง</p>
     ${r.demo?'<p class="warn" style="font-size:13px">* โหมดตัวอย่าง ยังไม่ได้ส่งเข้ากลุ่มจริง</p>':''}
-    ${chat?`<a class="btn" style="display:block;text-decoration:none;margin:10px 0" href="${chat}">💬 ส่งสรุปเข้าแชท LINE ร้าน</a>`:''}
     <button class="btn ghost" style="width:100%;margin-top:6px" id="again">กลับหน้าเมนู</button></div>`;
-  $('#again').onclick = () => close('#ovCart');
+  $('#again').onclick = () => { store.set('yg_last', null); close('#ovCart'); };
+  open('#ovCart'); $('#cartSheet').scrollTop = 0;
 }
 
 function open(s){ $(s).classList.remove('hide'); document.body.style.overflow='hidden'; }
 function close(s){ $(s).classList.add('hide'); document.body.style.overflow=''; }
 document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if (e.target === o) close('#' + o.id); }));
 renderBar();
-/* ถ้าลูกค้าออกไปโอนในแอปธนาคารแล้วหน้าเว็บถูกโหลดใหม่ → กลับมาที่หน้าชำระเงินเดิม (ภายใน 30 นาที) */
-{ const p = store.get('yg_pay'); if (p && p.c && cart.length && Date.now() - p.at < 30 * 60000 && !DATA.QRVIEW) showPay(p); }
+/* ถ้าลูกค้าออกไปโอนในแอปธนาคารแล้วหน้าเว็บถูกโหลดใหม่ → แสดง QR ของออเดอร์ล่าสุดอีกครั้ง (ภายใน 30 นาที) */
+{ const l = store.get('yg_last'); if (l && l.orderNo && Date.now() - l.at < 30 * 60000 && !DATA.QRVIEW) done(l, true); }
+store.set('yg_pay', null);
 
 /* หน้า QR อย่างเดียว (เปิดจากปุ่ม "เปิดในเบราว์เซอร์") */
 if (DATA.QRVIEW && (C.PAY_QR || C.PROMPTPAY)) {

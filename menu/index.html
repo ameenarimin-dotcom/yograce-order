@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เมนู — Yograce โยเกรซ ปัตตานี</title>
+<meta name="description" content="เมนูโยเกิร์ตสมูทตี้ Yograce โยเกรซ ปัตตานี เมนูขายดี เมนูใหม่ ราคา ระดับความหวาน และท็อปปิ้ง สั่งเดลิเวอรี่ได้เลย">
+<meta property="og:title" content="เมนู Yograce โยเกรซ">
+<meta property="og:description" content="โยเกิร์ตสมูทตี้สดใหม่ทุกแก้ว ดูเมนูแล้วกดสั่งได้เลย">
+<meta property="og:image" content="https://yograceyogurt.com/assets/icon-512.png">
+<link rel="icon" type="image/png" href="../assets/icon-180.png">
+<link rel="apple-touch-icon" href="../assets/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--mint:#8BBFA8;--mint-d:#4F8F77;--mint-l:#E3F1EA;--navy:#2E3A6B;--cream:#FFF8EE;--red:#E5484D;--ink:#22283F;--mute:#6B7280;--line:#E8E2D6;--card:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:'Prompt',system-ui,sans-serif;font-size:15px}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 110px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.top img{height:34px;width:auto;display:block}
+.nav{display:flex;gap:4px}
+.nav a{text-decoration:none;font-size:14px;color:var(--navy);padding:6px 10px;border-radius:999px}
+.nav a.on{background:var(--navy);color:#fff}
+h1{font-size:24px;color:var(--navy);margin:14px 0 4px}
+.sub{color:var(--mute);margin:0 0 6px;line-height:1.6}
+.sticky{position:sticky;top:0;z-index:5;background:var(--cream);margin:0 -16px;padding:4px 16px 0}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:8px 16px;margin:0 -16px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:14px;color:var(--navy);font-weight:500}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+h2{font-size:18px;margin:22px 0 10px;color:var(--navy);scroll-margin-top:64px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (min-width:600px){.grid{grid-template-columns:repeat(3,1fr)}}
+.it{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.it:active{transform:translateY(1px)}
+.ph{aspect-ratio:4/5;background:var(--mint-l);display:grid;place-items:center;font-size:40px;overflow:hidden;position:relative}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.tags{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.hot{font-size:11px;background:#FFE7D1;color:#B4530B;border-radius:6px;padding:1px 7px;font-weight:600}
+.hot.new{background:#E0E7FF;color:#3341A6}
+.tx{padding:10px 10px 12px;display:flex;flex-direction:column;flex:1}
+.nm{font-weight:600;font-size:14px;line-height:1.35}
+.en{font-size:11.5px;color:var(--mute);margin-top:2px}
+.ds{font-size:12px;color:var(--mute);margin-top:4px;line-height:1.45}
+.ft{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px}
+.pr{font-weight:700;color:var(--red);font-size:16px}
+.go{font-size:12px;color:var(--mint-d);font-weight:600}
+.info{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:22px}
+.info h3{font-size:16px;margin:0 0 10px;color:var(--navy)}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.pill{border:1.5px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;background:#fff}
+.pill small{color:var(--mute)}
+.msg{text-align:center;color:var(--mute);padding:48px 0}
+.msg.err{color:#9B1C1C}
+footer{text-align:center;font-size:12px;color:var(--mute);padding:24px 0 0}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--cream) 35%);z-index:20}
+.bar a{display:block;max-width:528px;margin:0 auto;text-align:center;text-decoration:none;background:var(--mint-d);color:#fff;font-weight:600;font-size:17px;padding:14px;border-radius:16px;box-shadow:0 6px 18px rgba(79,143,119,.3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="../"><img src="../assets/logo.png" alt="Yograce หน้าแรก"></a>
+    <nav class="nav"><a href="./" class="on">เมนู</a><a href="../contact/">ติดต่อเรา</a></nav>
+  </div>
+
+  <h1>เมนู</h1>
+  <p class="sub">โยเกิร์ตสมูทตี้สดใหม่ทุกแก้ว · แตะเมนูเพื่อสั่งได้เลย</p>
+
+  <div class="sticky"><nav class="cats" id="cats"></nav></div>
+  <main id="menu"><p class="msg">กำลังโหลดเมนู…</p></main>
+  <section class="info hide" id="extras"></section>
+
+  <footer>ราคาและเมนูอาจเปลี่ยนแปลง · © Yograce โยเกรซ · ปัตตานี</footer>
+</div>
+
+<div class="bar"><a href="../order/">🛵 สั่งเดลิเวอรี่</a></div>
+
+<script type="module">
+/* ดึงเมนูจาก Apps Script ตัวเดียวกับหน้าสั่ง (แก้เมนู/ราคาที่ Menu.gs ที่เดียว หน้านี้อัปเดตตามเอง) */
+const API = 'https://script.google.com/macros/s/AKfycbxtXfWHtOhZo-IklcFPlCDn8VeSzVX5uwA-uhcB6LArK6KhcjUqdvBRTD2gXcn_0CHq9g/exec';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let shown = '';
+function render(D){
+  const s = JSON.stringify(D); if (s === shown) return; shown = s;
+  const C = D.CONFIG || {}, MENU = D.MENU || [], IMG = D.IMAGES || {};
+  const imgUrl = (id, w) => /^https?:/.test(IMG[id]) ? IMG[id] : 'https://lh3.googleusercontent.com/d/' + encodeURIComponent(IMG[id]) + '=w' + w;
+  const ITEM = {}; MENU.forEach(c => c.items.forEach(i => ITEM[i.id] = { ...i, icon: i.icon || c.icon }));
+  const BEST = (C.BESTSELLERS || []).filter(id => ITEM[id]);
+  const NEWS = (C.NEW_ITEMS || []).filter(id => ITEM[id]);
+
+  const card = i => {
+    const r = BEST.indexOf(i.id);
+    const tags = (r >= 0 ? `<span class="hot">ขายดี #${r + 1}</span>` : '') + (NEWS.includes(i.id) ? '<span class="hot new">ใหม่</span>' : '');
+    const ph = IMG[i.id] ? `<img loading="lazy" alt="${esc(i.name)}" src="${imgUrl(i.id, 400)}" onerror="this.replaceWith('${i.icon || '🥤'}')">` : esc(i.icon || '🥤');
+    return `<a class="it" href="../order/?item=${encodeURIComponent(i.id)}"><div class="ph">${ph}${tags ? `<div class="tags">${tags}</div>` : ''}</div>
+      <div class="tx"><div class="nm">${esc(i.name)}</div>${i.en ? `<div class="en">${esc(i.en)}</div>` : ''}${i.desc ? `<div class="ds">${esc(i.desc)}</div>` : ''}
+      <div class="ft"><span class="pr">${esc(i.price)}.-</span><span class="go">สั่ง ›</span></div></div></a>`;
+  };
+
+  const SECTIONS = [];
+  if (BEST.length) SECTIONS.push({ cat: 'best', name: 'ขายดี', icon: '🔥', items: BEST.map(id => ITEM[id]) });
+  if (NEWS.length) SECTIONS.push({ cat: 'new', name: 'เมนูใหม่', icon: '✨', items: NEWS.map(id => ITEM[id]) });
+  MENU.forEach(c => SECTIONS.push({ ...c, items: c.items.map(i => ITEM[i.id]) }));
+
+  $('#cats').innerHTML = SECTIONS.map((c, i) => `<button class="chip${i ? '' : ' on'}" data-c="${esc(c.cat)}">${c.icon || ''} ${esc(c.name)}</button>`).join('');
+  $('#menu').innerHTML = SECTIONS.map(c => `<section><h2 id="sec-${esc(c.cat)}">${c.icon || ''} ${esc(c.name)}</h2><div class="grid">${c.items.map(card).join('')}</div></section>`).join('');
+
+  /* ความหวาน + ท็อปปิ้ง */
+  const SW = D.SWEETNESS || [], TOPS = D.TOPPINGS || [];
+  let ex = '';
+  if (SW.length) ex += `<h3>🍯 เลือกความหวานได้</h3><div class="pills">${SW.map(x => `<span class="pill">${esc(x.v)}${x.t ? ` <small>${esc(x.t)}</small>` : ''}</span>`).join('')}</div>`;
+  if (TOPS.length) ex += `<h3 style="margin-top:14px">🍓 ท็อปปิ้งเพิ่ม</h3><div class="pills">${TOPS.map(t => `<span class="pill">${esc(t.name)} <small>+${esc(t.price)}</small></span>`).join('')}</div>`;
+  $('#extras').innerHTML = ex; $('#extras').classList.toggle('hide', !ex);
+}
+
+$('#cats').onclick = e => { const b = e.target.closest('.chip'); if (!b) return;
+  document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+  document.getElementById('sec-' + b.dataset.c)?.scrollIntoView({ behavior: 'smooth' }); };
+
+/* แสดงจากแคชก่อน (ใช้ร่วมกับหน้าสั่ง) แล้วอัปเดตจากเซิร์ฟเวอร์ */
+let cached = null;
+try { cached = JSON.parse(localStorage.getItem('yg_menu')); } catch (e) {}
+if (cached && cached.MENU) render(cached);
+fetch(API + '?api=menu').then(r => r.json()).then(d => {
+  try { localStorage.setItem('yg_menu', JSON.stringify(d)); } catch (e) {}
+  render(d);
+}).catch(() => { if (!shown) $('#menu').innerHTML = '<p class="msg err">โหลดเมนูไม่สำเร็จ กรุณารีเฟรชหน้านี้อีกครั้ง</p>'; });
+</script>
+<style>.hide{display:none!important}</style>
+</body>
+</html>

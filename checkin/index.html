@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="robots" content="noindex">
+<title>ลงเวลา — Yograce พนักงาน</title>
+<link rel="icon" type="image/png" href="../assets/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+:root{--mint:#8BBFA8;--mint-d:#4F8F77;--mint-l:#E3F1EA;--navy:#2E3A6B;--cream:#FFF8EE;--red:#E5484D;--ink:#22283F;--mute:#6B7280;--line:#E8E2D6;--card:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:'Prompt',system-ui,sans-serif;font-size:15px}
+button,input,select,textarea{font-family:inherit}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px}
+header img{height:32px;display:block}
+header span{font-size:13px;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px}
+.hello{font-size:13px;color:var(--mute)}
+.name{font-size:20px;font-weight:700;color:var(--navy)}
+.clock{font-size:44px;font-weight:700;color:var(--navy);text-align:center;letter-spacing:1px;margin:6px 0 0}
+.date{text-align:center;color:var(--mute);font-size:14px}
+.shift{display:flex;align-items:center;gap:12px}
+.code{width:52px;height:52px;border-radius:14px;background:var(--mint-l);color:var(--mint-d);display:grid;place-items:center;font-size:22px;font-weight:700;flex:none}
+.code.off{background:#FDECEC;color:#9B1C1C;font-size:15px}
+.shift b{display:block;color:var(--navy)}
+.shift small{color:var(--mute)}
+.big{display:block;width:100%;border:0;border-radius:20px;padding:22px 16px;margin-top:14px;font-size:22px;font-weight:700;color:#fff;background:var(--mint-d);box-shadow:0 8px 22px rgba(79,143,119,.35)}
+.big.out{background:var(--navy);box-shadow:0 8px 22px rgba(46,58,107,.3)}
+.big small{display:block;font-size:13px;font-weight:400;opacity:.9;margin-top:2px}
+.big:active{transform:translateY(1px)}
+.big:disabled{opacity:.6}
+.logs{list-style:none;margin:0;padding:0}
+.logs li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line)}
+.logs li:last-child{border:0}
+.tag{font-size:12px;border-radius:6px;padding:1px 8px;font-weight:600}
+.tag.in{background:var(--mint-l);color:var(--mint-d)}
+.tag.out{background:#E0E7FF;color:#3341A6}
+h3{margin:0 0 8px;font-size:15px;color:var(--navy)}
+.muted{color:var(--mute);font-size:13px;line-height:1.6}
+label.f{display:block;font-size:13px;color:var(--navy);font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px;background:#fff;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--mint-d)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:13px;font-size:16px;font-weight:600;background:var(--mint-d);color:#fff;margin-top:14px}
+.btn:disabled{opacity:.5}
+.btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+.consent{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13px;line-height:1.55;color:var(--ink)}
+.consent input{width:20px;height:20px;flex:none;margin-top:2px}
+details summary{cursor:pointer;color:var(--navy);font-weight:600;list-style:none}
+details summary::-webkit-details-marker{display:none}
+.center{text-align:center;padding:40px 8px}
+.center .ic{font-size:52px}
+.ov{position:fixed;inset:0;background:rgba(20,24,40,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
+.box{background:#fff;border-radius:20px;padding:22px 18px;width:100%;max-width:360px;text-align:center}
+.box .ic{font-size:48px}
+.box .t{font-size:20px;font-weight:700;color:var(--navy);margin:6px 0}
+.box .s{color:var(--mute);font-size:14px;line-height:1.55}
+.late{color:#B4530B;font-weight:600}
+.spin{width:36px;height:36px;border:4px solid var(--mint-l);border-top-color:var(--mint-d);border-radius:50%;animation:sp 1s linear infinite;margin:6px auto 10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><img src="../assets/logo.png" alt="Yograce"><span>ลงเวลาพนักงาน</span></header>
+  <main id="app"><div class="center"><div class="spin"></div><div class="muted">กำลังโหลด…</div></div></main>
+</div>
+<input type="file" id="cam" accept="image/*" capture="user" class="hide">
+<div class="ov hide" id="ov"><div class="box" id="box"></div></div>
+
+<script>
+/* ===== ตั้งค่า (ใส่หลังสร้าง LIFF และ deploy Apps Script) ===== */
+const LIFF_ID = 'ใส่-LIFF-ID';
+const API = 'ใส่-URL-/exec-ของ-Apps-Script-ลงเวลา';
+/* ============================================================ */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const app = $('#app');
+let TOKEN = null, ST = null, posP = null;
+
+const TH_D = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const bkk = () => { const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short',hour12:false}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  return { ymd: `${p.year}-${p.month}-${p.day}`, hm: `${p.hour}:${p.minute}`, s: p.second, y:+p.year, m:+p.month, d:+p.day }; };
+const thDate = ymd => { const [y,m,d] = ymd.split('-').map(Number); const wd = new Date(Date.UTC(y,m-1,d)).getUTCDay(); return `วัน${TH_D[wd]}ที่ ${d} ${TH_M[m-1]} ${y+543}`; };
+
+async function call(action, data = {}) {
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({ action, idToken: TOKEN }, data)) });
+  const j = await r.json();
+  if (!j.ok) {
+    if (j.error === 'TOKEN_EXPIRED') { try { liff.logout(); } catch (e) {} liff.login({ redirectUri: location.href }); throw new Error('กำลังเข้าสู่ระบบใหม่…'); }
+    throw new Error(j.error || 'เกิดข้อผิดพลาด');
+  }
+  return j;
+}
+
+function modal(html, closable = true) {
+  $('#box').innerHTML = html + (closable ? '<button class="btn" id="okb">ตกลง</button>' : '');
+  $('#ov').classList.remove('hide');
+  if (closable) $('#okb').onclick = () => $('#ov').classList.add('hide');
+}
+const busy = msg => msg ? modal(`<div class="spin"></div><div class="s">${esc(msg)}</div>`, false) : $('#ov').classList.add('hide');
+const fail = msg => modal(`<div class="ic">⚠️</div><div class="t">ทำรายการไม่สำเร็จ</div><div class="s">${esc(msg)}</div>`);
+
+function render() {
+  const s = ST.status;
+  if (s === 'unregistered') return renderRegister();
+  if (s === 'pending') { app.innerHTML = `<div class="card center"><div class="ic">⏳</div><div class="name">${esc(ST.name)}</div><p class="muted">ลงทะเบียนแล้ว รอผู้จัดการอนุมัติ<br>เมื่ออนุมัติแล้ว เปิดลิงก์นี้อีกครั้งเพื่อลงเวลา</p><button class="btn ghost" onclick="location.reload()">ตรวจสอบอีกครั้ง</button></div>`; return; }
+  if (s === 'inactive') { app.innerHTML = `<div class="card center"><div class="ic">🚫</div><p class="muted">บัญชีนี้ไม่ได้ใช้งานแล้ว<br>ติดต่อผู้จัดการ</p></div>`; return; }
+  renderMain();
+}
+
+function renderRegister() {
+  app.innerHTML = `<div class="card"><h3>ลงทะเบียนครั้งแรก</h3>
+    <p class="muted">เลือกชื่อของคุณ ระบบจะผูกกับบัญชี LINE นี้ (${esc(ST.lineName)}) ใช้ได้เครื่องเดียว คนเดียว</p>
+    <label class="f" for="emp">ชื่อพนักงาน</label>
+    <select id="emp"><option value="">— เลือกชื่อ —</option>${ST.choices.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select>
+    <label class="consent"><input type="checkbox" id="cs"><span>ข้าพเจ้ายินยอมให้ร้าน Yograce เก็บ <b>เวลาเข้า–ออกงาน ตำแหน่ง GPS ขณะลงเวลา และรูปถ่าย</b> เพื่อใช้ตรวจสอบการเข้างานและคำนวณค่าจ้างเท่านั้น</span></label>
+    <button class="btn" id="reg" disabled>ลงทะเบียน</button></div>
+    ${ST.choices.length ? '' : '<p class="muted center">ไม่พบชื่อที่ยังไม่ได้ลงทะเบียน กรุณาติดต่อผู้จัดการ</p>'}`;
+  const upd = () => $('#reg').disabled = !($('#emp').value && $('#cs').checked);
+  $('#emp').onchange = upd; $('#cs').onchange = upd;
+  $('#reg').onclick = async () => {
+    busy('กำลังลงทะเบียน…');
+    try { ST = await call('register', { empId: $('#emp').value, consent: true }); busy(false); render(); }
+    catch (e) { fail(e.message); }
+  };
+}
+
+let tick = null;
+function renderMain() {
+  const sh = ST.shift, isIn = ST.next === 'in';
+  const shiftHtml = !sh ? `<div class="code off">?</div><div><b>ไม่มีกะในตารางวันนี้</b><small>ถ้ามาทำงาน ลงเวลาได้ตามปกติ</small></div>`
+    : sh.code === 'OFF' ? `<div class="code off">OFF</div><div><b>วันหยุดของคุณ</b><small>ถ้ามาทำงาน ลงเวลาได้ตามปกติ</small></div>`
+    : `<div class="code">${esc(sh.code)}</div><div><b>กะ ${esc(sh.code)}${sh.note ? ' · ' + esc(sh.note) : ''}</b><small>${sh.start ? esc(sh.start) + ' – ' + esc(sh.end) + ' น.' : 'ยังไม่ได้ตั้งเวลากะนี้'}</small></div>`;
+  app.innerHTML = `
+    <div class="card"><div class="hello">สวัสดี</div><div class="name">${esc(ST.name)}</div><div class="muted">${esc(ST.branch)}</div>
+      <div class="clock" id="clock">--:--</div><div class="date">${thDate(ST.date)}</div></div>
+    <div class="card shift">${shiftHtml}</div>
+    <button class="big ${isIn ? '' : 'out'}" id="punch">${isIn ? '🟢 เข้างาน' : '🔵 ออกงาน'}<small>ถ่ายเซลฟี่ + ตรวจตำแหน่ง</small></button>
+    <div class="card"><h3>วันนี้</h3>${ST.logs.length ? `<ul class="logs">${ST.logs.map(l => `<li><span class="tag ${l.type === 'เข้า' ? 'in' : 'out'}">${esc(l.type)}งาน</span><b>${esc(l.time)} น.</b></li>`).join('')}</ul>` : '<div class="muted">ยังไม่ได้ลงเวลา</div>'}</div>
+    <div class="card"><details><summary>✏️ ลืมลงเวลา? ขอแก้เวลา</summary>
+      <p class="muted">ส่งคำขอให้ผู้จัดการอนุมัติ ย้อนหลังได้ไม่เกิน 7 วัน</p>
+      <label class="f">วันที่</label><input type="date" id="fd">
+      <label class="f">ประเภท</label><select id="ft"><option value="in">เวลาเข้างาน</option><option value="out">เวลาออกงาน</option></select>
+      <label class="f">เวลาที่ถูกต้อง</label><input type="time" id="ftm">
+      <label class="f">เหตุผล</label><input type="text" id="fr" maxlength="200" placeholder="เช่น ลืมกดออกงาน, มือถือแบตหมด">
+      <button class="btn ghost" id="fs">ส่งคำขอ</button></details></div>`;
+  const now = bkk();
+  $('#fd').value = now.ymd; $('#fd').max = now.ymd;
+  const min = new Date(Date.UTC(now.y, now.m - 1, now.d - 7)); $('#fd').min = min.toISOString().slice(0, 10);
+  clearInterval(tick); const t = () => { const n = bkk(); const c = $('#clock'); if (c) c.innerHTML = `${n.hm}<span style="font-size:20px;color:var(--mute)">:${n.s}</span>`; }; t(); tick = setInterval(t, 1000);
+
+  $('#punch').onclick = () => { posP = getPos(); $('#cam').value = ''; $('#cam').click(); };
+  $('#fs').onclick = async () => {
+    const d = { date: $('#fd').value, type: $('#ft').value, time: $('#ftm').value, reason: $('#fr').value.trim() };
+    if (!d.date || !d.time || !d.reason) return fail('กรุณากรอกวันที่ เวลา และเหตุผลให้ครบ');
+    busy('กำลังส่งคำขอ…');
+    try { const r = await call('fix', d); modal(`<div class="ic">📨</div><div class="t">ส่งคำขอแล้ว</div><div class="s">${esc(r.msg)}</div>`); $('#fr').value = ''; $('#ftm').value = ''; }
+    catch (e) { fail(e.message); }
+  };
+}
+
+function getPos() {
+  return new Promise((res, rej) => {
+    if (!navigator.geolocation) return rej(new Error('เครื่องนี้ไม่รองรับ GPS'));
+    navigator.geolocation.getCurrentPosition(res, e => rej(new Error(e.code === 1
+      ? 'ยังไม่ได้อนุญาตให้ใช้ตำแหน่ง — เปิดสิทธิ์ตำแหน่ง (Location) ให้แอป LINE ในตั้งค่ามือถือ แล้วลองใหม่'
+      : 'หาตำแหน่งไม่ได้ เปิด GPS แล้วลองใหม่อีกครั้ง')), { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+  });
+}
+
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => { const k = Math.min(1, 640 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      res(c.toDataURL('image/jpeg', 0.6)); };
+    img.onerror = () => rej(new Error('อ่านรูปไม่ได้ ลองถ่ายใหม่'));
+    img.src = url;
+  });
+}
+
+$('#cam').onchange = async () => {
+  const f = $('#cam').files[0]; if (!f) return;
+  const type = ST.next;
+  busy('กำลังตรวจตำแหน่ง…');
+  try {
+    const photo = await shrink(f);
+    let pos = null; try { pos = posP && await posP; } catch (e) {}
+    if (!pos) pos = await getPos();
+    busy('กำลังบันทึกเวลา…');
+    ST = await call('punch', { type, photo, lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
+    renderMain();
+    const p = ST.punched;
+    const lateTxt = p.late == null ? '' : p.late > 0 ? `<div class="late">สาย ${p.late} นาที (หัก ${p.deduct} บาท)</div>` : '<div style="color:var(--mint-d);font-weight:600">ตรงเวลา 👍</div>';
+    modal(`<div class="ic">${p.type === 'เข้า' ? '✅' : '👋'}</div><div class="t">${p.type}งาน ${esc(p.time)} น.</div>${lateTxt}<div class="s">ห่างร้าน ${p.dist} ม. · บันทึกแล้ว</div>`);
+  } catch (e) { fail(e.message); }
+};
+
+(async function start() {
+  if (LIFF_ID.startsWith('ใส่')) { app.innerHTML = '<div class="card center"><p class="muted">ยังไม่ได้ตั้งค่า LIFF_ID และ API ในไฟล์นี้</p></div>'; return; }
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+    TOKEN = liff.getIDToken();
+    if (!TOKEN) throw new Error('ไม่ได้รับสิทธิ์ยืนยันตัวตน — ตรวจว่า LIFF เปิด scope "openid"');
+    ST = await call('me'); render();
+  } catch (e) {
+    app.innerHTML = `<div class="card center"><div class="ic">⚠️</div><p class="muted">${esc(e.message)}</p><button class="btn ghost" onclick="location.reload()">ลองใหม่</button></div>`;
+  }
+})();
+</script>
+</body>
+</html>

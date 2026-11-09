@@ -496,6 +496,9 @@ renderBar();
 /* ถ้าลูกค้าออกไปโอนในแอปธนาคารแล้วหน้าเว็บถูกโหลดใหม่ → แสดง QR ของออเดอร์ล่าสุดอีกครั้ง (ภายใน 30 นาที) */
 { const l = store.get('yg_last'); if (l && l.orderNo && Date.now() - l.at < 30 * 60000 && !DATA.QRVIEW) done(l, true); }
 store.set('yg_pay', null);
+/* เปิดจากหน้าเมนู (?item=รหัสเมนู) → เด้งหน้าเลือกเมนูนั้นทันที */
+{ const it = new URLSearchParams(location.search).get('item');
+  if (it && ITEM[it] && !DATA.QRVIEW && $('#ovCart').classList.contains('hide')) { history.replaceState(null, '', location.pathname); openItem(it); } }
 
 /* หน้า QR อย่างเดียว (เปิดจากปุ่ม "เปิดในเบราว์เซอร์") */
 if (DATA.QRVIEW && (C.PAY_QR || C.PROMPTPAY)) {
